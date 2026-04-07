@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Filmmaker Workflow</title>
+<style>
+:root{
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --color-background-primary: #fafafa;
+  --color-background-secondary: #f5f5f5;
+  --color-background-info: #eff6ff;
+  --color-background-success: #f0fdf4;
+  --color-background-danger: #fef2f2;
+  --color-text-primary: #171717;
+  --color-text-secondary: #525252;
+  --color-text-tertiary: #737373;
+  --color-text-info: #1d4ed8;
+  --color-text-success: #15803d;
+  --color-text-danger: #dc2626;
+  --color-border-primary: #171717;
+  --color-border-secondary: #e5e5e5;
+  --color-border-tertiary: #d4d4d4;
+  --color-border-info: #3b82f6;
+  --color-border-success: #22c55e;
+  --border-radius-md: 6px;
+  --border-radius-lg: 8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { 
+  font-family: var(--font-sans); 
+  background: #fff; 
+  color: var(--color-text-primary);
+  line-height: 1.5;
+}
+.app { 
+  max-width: 800px; 
+  margin: 0 auto; 
+  padding: 40px 24px; 
+}
+.header { margin-bottom: 32px; }
+.header h1 { 
+  font-size: 24px; 
+  font-weight: 600; 
+  margin-bottom: 8px;
+  letter-spacing: -0.02em;
+}
+.header p { 
+  color: var(--color-text-secondary); 
+  font-size: 14px;
+}
+.brief-section {
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-lg);
+  padding: 20px;
+  margin-bottom: 24px;
+}
+.brief-label {
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+  margin-bottom: 12px;
+}
+.brief-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.brief-inputs input, textarea {
+  width: 100%;
+  font-size: 14px;
+  padding: 10px 12px;
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-md);
+  background: #fff;
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+}
+.brief-inputs input:focus, textarea:focus {
+  outline: none;
+  border-color: var(--color-border-primary);
+}
+textarea {
+  resize: vertical;
+  min-height: 80px;
+  width: 100%;
+}
+.run-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  background: var(--color-text-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--border-radius-md);
+  cursor: pointer;
+  margin-top: 12px;
+  transition: all 0.2s;
+}
+.run-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+.run-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+.progress-bar {
+  height: 3px;
+  background: var(--color-border-tertiary);
+  border-radius: 2px;
+  margin: 24px 0;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--color-text-success);
+  border-radius: 2px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 0%;
+}
+.phases {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.phase {
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  background: #fff;
+}
+.phase.active {
+  border-color: var(--color-border-info);
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.08);
+}
+.phase.done {
+  border-color: var(--color-border-success);
+}
+.phase-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  cursor: pointer;
+  user-select: none;
+}
+.phase-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+  transition: all 0.3s;
+}
+.icon-idle { background: var(--color-background-secondary); color: var(--color-text-secondary); }
+.icon-running { background: var(--color-background-info); color: var(--color-text-info); }
+.icon-done { background: var(--color-background-success); color: var(--color-text-success); }
+.phase-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  flex: 1;
+}
+.phase-badge {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 0.5px solid var(--color-border-tertiary);
+  color: var(--color-text-secondary);
+  font-weight: 500;
+}
+.phase-badge.running {
+  background: var(--color-background-info);
+  color: var(--color-text-info);
+  border-color: transparent;
+}
+.phase-badge.done {
+  background: var(--color-background-success);
+  color: var(--color-text-success);
+  border-color: transparent;
+}
+.phase-body {
+  display: none;
+  padding: 0 16px 16px;
+  border-top: 0.5px solid var(--color-border-tertiary);
+  animation: slideDown 0.3s ease;
+}
+.phase-body.open { display: block; }
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.output-text {
+  font-size: 13px;
+  color: var(--color-text-primary);
+  line-height: 1.8;
+  white-space: pre-wrap;
+  margin-top: 12px;
+  font-family: 'SF Mono', Monaco, monospace;
+  background: var(--color-background-secondary);
+  padding: 16px;
+  border-radius: var(--border-radius-md);
+  overflow-x: auto;
+}
+.tool-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+.tool-chip {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: var(--color-background-secondary);
+  color: var(--color-text-secondary);
+  border: 0.5px solid var(--color-border-tertiary);
+  font-weight: 500;
+}
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--color-border-info);
+  border-top-color: var(--color-text-info);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.chevron {
+  font-size: 10px;
+  color: var(--color-text-tertiary);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+.chevron.open { transform: rotate(180deg); }
+.export-btn {
+  font-size: 13px;
+  padding: 10px 16px;
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-md);
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  margin-top: 20px;
+  width: 100%;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+.export-btn:hover {
+  background: var(--color-background-secondary);
+  color: var(--color-text-primary);
+}
+.mode-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.mode-btn {
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 0.5px solid var(--color-border-tertiary);
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+.mode-btn.active {
+  background: var(--color-text-primary);
+  color: #fff;
+  border-color: transparent;
+}
+.demo-badge {
+  display: inline-block;
+  background: #fef3c7;
+  color: #92400e;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-bottom: 16px;
+  border: 0.5px solid #fcd34d;
+}
+.live-badge {
+  display: inline-block;
+  background: #f0fdf4;
+  color: #15803d;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  margin-bottom: 16px;
+  border: 0.5px solid #22c55e;
+}
+.api-note {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  margin-top: 8px;
+  text-align: center;
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <h1>AI Filmmaker Workflow</h1>
+    <p>End-to-end automated creative pipeline — from brief to export</p>
+  </div>
+
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="demoModeBtn" onclick="setMode('demo')">Demo mode</button>
+    <button class="mode-btn" id="liveModeBtn" onclick="setMode('live')">Live AI mode</button>
+  </div>
+
+  <div id="demoBadgeWrap"><div class="demo-badge">Demo mode — sample outputs, no API needed</div></div>
+  <div id="liveBadgeWrap" style="display:none"><div class="live-badge">Live mode — real Claude AI outputs</div></div>
+
+  <div class="brief-section">
+    <div class="brief-label">Brand Brief</div>
+    <div class="brief-inputs">
+      <input id="brand" placeholder="Brand name" value="Sleepy Owl Coffee" />
+      <input id="product" placeholder="Product" value="Cold Brew Cans — Monsoon Edition" />
+    </div>
+    <div class="brief-inputs">
+      <input id="audience" placeholder="Target audience" value="22-32 urban millennials, WFH creatives" />
+      <input id="tone" placeholder="Tone" value="chill, nostalgic, slightly ironic" />
+    </div>
+    <textarea id="extra" placeholder="Extra context (optional)...">Launching new monsoon flavor. Sunday afternoon rain + productivity guilt. Anti-hustle positioning vs competitor hustle culture vibes.</textarea>
+    <button class="run-btn" id="runBtn" onclick="runWorkflow()">Run full AI workflow →</button>
+    <p class="api-note" id="apiNote">Demo mode uses sample outputs. Switch to Live AI mode to generate real outputs with Claude.</p>
+  </div>
+
+  <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+  <div class="phases" id="phases"></div>
+  <button class="export-btn" id="exportBtn" style="display:none" onclick="exportAll()">Export full workflow as text</button>
+</div>
+
+<script>
+let currentMode = 'demo';
+
+const PHASES = [
+  {id:'concept', title:'Concept development', tool:'Claude'},
+  {id:'script',  title:'30-second script',    tool:'Claude'},
+  {id:'hooks',   title:'3 scroll-stopping hooks', tool:'Claude'},
+  {id:'moodboard', title:'Midjourney mood board prompts', tool:'Midjourney'},
+  {id:'kling',   title:'Kling AI video prompts', tool:'Kling AI'},
+  {id:'higgsfield', title:'Higgsfield camera movements', tool:'Higgsfield'},
+  {id:'elevenlabs', title:'ElevenLabs voice direction', tool:'ElevenLabs'},
+  {id:'capcut',  title:'CapCut edit sequence', tool:'CapCut'},
+  {id:'caption', title:'Final caption + hashtags', tool:'Claude'}
+];
+
+const MOCK = {
+  concept:`CAMPAIGN NAME: "The Art of Doing Nothing"
+
+CORE INSIGHT: Our audience is exhausted by the glorification of busyness. The monsoon is a permission slip to slow down that nature gives us, so we don't have to give it to ourselves.
+
+EMOTIONAL HOOK: That specific Sunday feeling when it's raining, your to-do list exists, but you choose the couch anyway—and the coffee tastes better because of it.
+
+TAGLINE: "Some storms are worth waiting for."
+
+FILM FEELING: Like a warm, slightly overexposed memory. Soft window light, steam rising, the sound of rain hitting glass. Nostalgic but not sad—content in the stillness.`,
+
+  script:`[0:00-0:05] SHOT: Rain hitting window, condensation trails. TEXT: "sunday. 2pm."
+[0:05-0:10] SHOT: Hand reaching for Cold Brew can from fridge, droplets on aluminum. TEXT: "the to-do list can wait"
+[0:10-0:15] SHOT: Can opening, fizz, poured over ice in ceramic mug. TEXT: "this storm is yours"
+[0:15-0:20] SHOT: Steam rising from mug, open notebook (blank page), rain blurred behind. TEXT: "do nothing. taste everything."
+[0:20-0:25] SHOT: Window frame, rain on glass, Cold Brew can in foreground. TEXT: "monsoon edition"
+[0:25-0:30] SHOT: Product on wet windowsill, raindrops on label. TEXT: "sleepy owl coffee"
+
+MUSIC: Lo-fi hip hop, 75 BPM, vinyl crackle, rain underneath. Builds at 0:20, fades to ambient at end.`,
+
+  hooks:`HOOK 01 — THE RELATABLE CONFESSION:
+"POV: It's Sunday, it's raining, and your laptop is open to 47 tabs of 'productive things to do'... but you're on the couch with a cold brew and zero guilt."
+WHY IT WORKS: Validates the secret behavior everyone does but no one posts about.
+
+HOOK 02 — THE SENSORY SNAP:
+"That sound. You know the one. Rain + aluminum crack + first sip. Sunday afternoon in 3 seconds."
+WHY IT WORKS: ASMR-adjacent, triggers memory recall instantly.
+
+HOOK 03 — THE ANTI-HUSTLE MANIFESTO:
+"Your productivity podcast can wait. This storm can't."
+WHY IT WORKS: Direct call-out of the culture they're tired of. Brand as permission-giver.`,
+
+  moodboard:`FRAME 01 — THE WINDOW:
+"Close-up of rain droplets on vintage glass window, condensation fogging edges, soft diffused daylight, muted teal and warm beige tones, cinematic shallow depth of field, 35mm film grain --ar 9:16 --style raw --q 2"
+
+FRAME 02 — THE REACH:
+"Hand with chipped nail polish reaching for aluminum beverage can in minimalist fridge, morning light, steam rising from nearby mug, cozy domestic scene, muted color palette --ar 9:16 --style raw --q 2"
+
+FRAME 03 — THE POUR:
+"Ice cubes clinking in handmade ceramic mug, cold brew pouring, slow motion droplets, warm wood surface, rain visible through window in background --ar 9:16 --style raw --q 2"
+
+FRAME 04 — THE PAUSE:
+"Open notebook with blank page on windowsill, rain-streaked glass behind, Cold Brew can in soft focus foreground, cozy Sunday afternoon vibes --ar 9:16 --style raw --q 2"
+
+FRAME 05 — THE PRODUCT HERO:
+"Sleepy Owl Cold Brew can on wet concrete windowsill, monsoon rain background, droplets on aluminum, dramatic soft lighting, moody atmosphere, teal and orange grade --ar 9:16 --style raw --q 2"`,
+
+  kling:`CLIP 01 — THE WINDOW:
+Motion: Rain droplets slowly sliding down glass, condensation forming
+Camera: Static, subtle breathing movement (handheld simulation)
+Duration: 4 seconds
+
+CLIP 02 — THE REACH:
+Motion: Hand enters frame from right, fingers wrap around can, gentle lift
+Camera: Slow push-in (10% zoom) as hand moves
+Duration: 4 seconds
+
+CLIP 03 — THE POUR:
+Motion: Liquid pour, ice cubes shifting, steam rising upward
+Camera: Top-down angle, slow drift left
+Duration: 4 seconds
+
+CLIP 04 — THE PAUSE:
+Motion: Notebook pages flutter slightly from window breeze, steam dances
+Camera: Static with micro-movements
+Duration: 4 seconds
+
+CLIP 05 — THE PRODUCT HERO:
+Motion: Rain in background, single droplet slides down can
+Camera: Slow orbit (15 degrees) around product
+Duration: 4 seconds`,
+
+  higgsfield:`SHOT 01 — THE WINDOW DRIFT:
+Movement type: Slow dolly push-in
+Prompt: "Rain-streaked vintage window, condensation fogging edges, cozy interior blurred in background, moody monsoon atmosphere"
+Duration: 6 seconds
+Notes: Establishing shot. Movement should be imperceptibly slow — more felt than seen.
+
+SHOT 02 — THE ORBIT:
+Movement type: 180-degree orbit around subject
+Prompt: "Hand holding Cold Brew can by rain-soaked window, natural light, steam from mug in foreground"
+Duration: 5 seconds
+Notes: Hero moment. Smooth, slight ease-in/ease-out.
+
+SHOT 03 — THE CRANE:
+Movement type: Mini crane lift from table to window
+Prompt: "From coffee mug on wooden table up to rain hitting window glass, seamless transition, warm interior to cool exterior"
+Duration: 5 seconds`,
+
+  elevenlabs:`RECOMMENDED VOICE STYLE: Female, late 20s, soft-spoken but not whispering, slight rasp (like she's just woken from a nap), warm and intimate
+
+VOICE SETTINGS:
+- Stability: 65 (allow some natural variation)
+- Clarity: 75 (clear but not clinical)
+- Style: 40 (subtle, not robotic)
+
+SCRIPT FOR VOICE:
+"Some storms are worth waiting for. This one comes in a can. Sleepy Owl Monsoon Edition — because doing nothing is doing something."
+
+DELIVERY NOTES:
+- First sentence: contemplative, trailing off slightly
+- "This one comes in a can": small smile, gentle irony
+- Final line: sincere, not salesy — advice from a friend
+- Avoid: up-talk, enthusiasm, announcer energy`,
+
+  capcut:`CLIP ORDER:
+Clip 01 (Window rain) — 5s
+Clip 02 (Hand reach) — 4s
+Clip 03 (The pour) — 4s
+Clip 04 (Notebook pause) — 5s
+Clip 05 (Product hero) — 4s
+Clip 06 (Logo lockup) — 3s
+Clip 07 (End frame) — 5s
+Total: 30 seconds
+
+TEXT OVERLAYS:
+Font: Montserrat Light, color #F5F5F5, lower third left-aligned
+Animation: Typewriter effect 0.3s per character
+Timing: Appear 0.5s after clip start, hold 2s, fade 0.5s
+
+COLOR GRADE:
+Brightness: -5 | Contrast: +10 | Saturation: -15
+Temperature: +8 | Highlights: -20 | Shadows: +10 | Grain: 15%
+
+MUSIC: Lo-fi hip hop, 75 BPM, no vocals
+0:00-0:10 ambient intro, rain sounds prominent
+0:10-0:20 beat drops, subtle bass
+0:20-0:30 strip back to ambient, vinyl crackle fade
+
+TRANSITIONS: Match cuts on motion, dissolve Clip 03→04, fade to black Clip 05→06
+
+EXPORT: 1080x1920 (9:16), MP4 H.264, 8 Mbps, 24fps. Also export 1:1 square.`,
+
+  caption:`the sunday scaries don't stand a chance against a cold brew and a thunderstorm.
+
+we made this one for the people who've realized that "hustle culture" is just anxiety with a rebrand. the monsoon edition is here — same cold brew, new permission to do absolutely nothing.
+
+grab a can. listen to the rain. let your to-do list ghost you for once.
+
+link in bio 🌧️
+
+#sleepyowl #coldbrew #monsoonvibes #sundayfunday #antihustle #rainyday #cozyvibes #coffeetime #wfhlife #millennialmood #slowliving #donothingclub #caffeineandchill #homebody #indiacoffee`
+};
+
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('demoModeBtn').classList.toggle('active', mode==='demo');
+  document.getElementById('liveModeBtn').classList.toggle('active', mode==='live');
+  document.getElementById('demoBadgeWrap').style.display = mode==='demo' ? 'block' : 'none';
+  document.getElementById('liveBadgeWrap').style.display = mode==='live' ? 'block' : 'none';
+  document.getElementById('apiNote').textContent = mode==='demo'
+    ? 'Demo mode uses sample outputs. Switch to Live AI mode to generate real outputs with Claude.'
+    : 'Live AI mode — each phase calls Claude API and generates real outputs for your brand.';
+}
+
+let results = {};
+
+function buildPhases() {
+  const cont = document.getElementById('phases');
+  cont.innerHTML = '';
+  PHASES.forEach((p, i) => {
+    const div = document.createElement('div');
+    div.className = 'phase';
+    div.id = 'phase_' + p.id;
+    div.innerHTML = `
+      <div class="phase-head" onclick="togglePhase('${p.id}')">
+        <div class="phase-icon icon-idle" id="icon_${p.id}">${i+1}</div>
+        <div class="phase-title">${p.title}</div>
+        <div class="phase-badge" id="badge_${p.id}">${p.tool}</div>
+        <div class="chevron" id="chev_${p.id}">▼</div>
+      </div>
+      <div class="phase-body" id="body_${p.id}">
+        <div class="tool-row"><span class="tool-chip">${p.tool}</span></div>
+        <div class="output-text" id="out_${p.id}">Waiting to run...</div>
+      </div>`;
+    cont.appendChild(div);
+  });
+}
+
+function togglePhase(id) {
+  const body = document.getElementById('body_' + id);
+  const chev = document.getElementById('chev_' + id);
+  body.classList.toggle('open', !body.classList.contains('open'));
+  chev.classList.toggle('open', !chev.classList.contains('open'));
+}
+
+function setPhaseState(id, state, text) {
+  const icon  = document.getElementById('icon_' + id);
+  const badge = document.getElementById('badge_' + id);
+  const phase = document.getElementById('phase_' + id);
+  const body  = document.getElementById('body_' + id);
+  const chev  = document.getElementById('chev_' + id);
+  const p     = PHASES.find(x => x.id === id);
+
+  icon.className = 'phase-icon icon-' + state;
+
+  if (state === 'running') {
+    icon.innerHTML = '<span class="spinner"></span>';
+    badge.className = 'phase-badge running';
+    badge.textContent = 'Generating...';
+    phase.classList.add('active');
+    phase.classList.remove('done');
+    body.classList.add('open');
+    chev.classList.add('open');
+  } else if (state === 'done') {
+    icon.innerHTML = '✓';
+    badge.className = 'phase-badge done';
+    badge.textContent = 'Done';
+    phase.classList.remove('active');
+    phase.classList.add('done');
+  } else {
+    const idx = PHASES.findIndex(x => x.id === id);
+    icon.innerHTML = idx + 1;
+    badge.className = 'phase-badge';
+    badge.textContent = p ? p.tool : id;
+  }
+
+  if (text !== undefined) {
+    document.getElementById('out_' + id).textContent = text;
+  }
+}
+
+function updateProgress(done) {
+  document.getElementById('progress').style.width = Math.round((done / PHASES.length) * 100) + '%';
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+const PROMPTS = {
+  concept: (b) => `You are a creative director. Brand: ${b.brand}. Product: ${b.product}. Audience: ${b.audience}. Tone: ${b.tone}. ${b.extra}
+Generate a campaign concept:
+CAMPAIGN NAME: [name]
+CORE INSIGHT: [2 sentences]
+EMOTIONAL HOOK: [1 sentence]
+TAGLINE: [1 line]
+FILM FEELING: [1 sentence]`,
+
+  script: (b, prev) => `Brand: ${b.brand}. Product: ${b.product}. Tone: ${b.tone}.
+Concept: ${prev}
+Write a 30-second brand film script for Instagram Reels. Format:
+[0:00-0:05] SHOT: description. TEXT: "overlay"
+Continue for 6-7 shots. End with product + brand name. Include MUSIC direction at end.`,
+
+  hooks: (b, prev) => `Brand: ${b.brand}. Audience: ${b.audience}.
+Script: ${prev}
+Write exactly 3 ad hooks:
+HOOK 01 — [TYPE]: [copy]
+WHY IT WORKS: [1 sentence]
+Repeat for hooks 02 and 03. Zero corporate energy.`,
+
+  moodboard: (b, prev) => `Brand: ${b.brand}. Tone: ${b.tone}.
+Script: ${prev}
+Generate 5 Midjourney prompts for key scenes. Format:
+FRAME 01 — [scene name]:
+"[detailed prompt]" --ar 9:16 --style raw --q 2
+Repeat for frames 02-05.`,
+
+  kling: (b, prev) => `Frames: ${prev}
+Write 5 Kling AI video prompts (one per frame):
+CLIP 01 — [name]:
+Motion: [description]
+Camera: [movement]
+Duration: 4 seconds`,
+
+  higgsfield: (b, prev) => `Film for ${b.brand} / ${b.product}.
+Write 3 Higgsfield hero camera movement prompts:
+SHOT 01 — [name]:
+Movement type: [dolly/crane/orbit]
+Prompt: "[detailed prompt]"
+Duration: [seconds]`,
+
+  elevenlabs: (b, prev) => `Brand: ${b.brand}. Tone: ${b.tone}.
+Script: ${prev}
+Write ElevenLabs voice direction:
+RECOMMENDED VOICE STYLE: [description]
+VOICE SETTINGS: Stability, Clarity, Style (0-100)
+SCRIPT FOR VOICE: [2-3 sentences max]
+DELIVERY NOTES: [how it should sound]`,
+
+  capcut: (b, prev) => `30-second brand film for ${b.brand}.
+Write the complete CapCut edit sequence:
+CLIP ORDER: each clip with duration
+TEXT OVERLAYS: font, color, position, timing
+COLOR GRADE: specific adjustments
+MUSIC: style, BPM, structure
+TRANSITIONS: between each clip
+EXPORT SETTINGS: all formats needed`,
+
+  caption: (b, prev) => `Brand: ${b.brand}. Concept: ${prev}
+Write the final Instagram caption:
+- 4-6 short lines, lowercase, poetic not corporate
+- 1 line CTA
+- 12 relevant hashtags
+Under 200 words. Feel like a human wrote it at midnight.`
+};
+
+async function callClaude(prompt) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1000,
+      messages: [{role: 'user', content: prompt}]
+    })
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message);
+  return data.content[0].text;
+}
+
+async function runWorkflow() {
+  const brand   = document.getElementById('brand').value.trim();
+  const product = document.getElementById('product').value.trim();
+  const audience = document.getElementById('audience').value.trim();
+  const tone    = document.getElementById('tone').value.trim();
+  const extra   = document.getElementById('extra').value.trim();
+
+  if (!brand || !product || !audience) {
+    alert('Please fill in brand name, product, and audience.');
+    return;
+  }
+
+  const b = { brand, product, audience, tone: tone || 'premium, warm, cinematic', extra };
+  const btn = document.getElementById('runBtn');
+  btn.disabled = true;
+  btn.textContent = 'Running workflow...';
+  results = {};
+  document.getElementById('exportBtn').style.display = 'none';
+  buildPhases();
+  updateProgress(0);
+
+  let prevOutput = '';
+
+  for (let i = 0; i < PHASES.length; i++) {
+    const p = PHASES[i];
+    setPhaseState(p.id, 'running', 'Generating...');
+
+    try {
+      let out;
+      if (currentMode === 'demo') {
+        await sleep(700 + Math.random() * 500);
+        const mockKey = p.id;
+        out = MOCK[mockKey] || `[Demo output for ${p.title}]`;
+      } else {
+        const promptFn = PROMPTS[p.id];
+        const prompt = promptFn(b, prevOutput);
+        out = await callClaude(prompt);
+      }
+
+      results[p.id] = out;
+      setPhaseState(p.id, 'done', out);
+      prevOutput = out;
+      updateProgress(i + 1);
+      await sleep(150);
+    } catch(e) {
+      setPhaseState(p.id, 'error', 'Error: ' + e.message + '\n\nIf using Live AI mode, make sure you are running this through claude.ai artifacts — direct API calls require authentication handled by the platform.');
+      break;
+    }
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Run full AI workflow →';
+  document.getElementById('exportBtn').style.display = 'block';
+}
+
+function exportAll() {
+  const brand = document.getElementById('brand').value || 'Brand';
+  let text = `AI FILMMAKER WORKFLOW — ${brand.toUpperCase()}\n${'='.repeat(60)}\n\n`;
+  PHASES.forEach(p => {
+    if (results[p.id]) {
+      text += `${p.title.toUpperCase()}\n${'-'.repeat(40)}\n${results[p.id]}\n\n`;
+    }
+  });
+  const blob = new Blob([text], {type:'text/plain'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = brand.toLowerCase().replace(/\s+/g,'-') + '-workflow.txt';
+  a.click();
+}
+
+buildPhases();
+</script>
+</body>
+</html>
