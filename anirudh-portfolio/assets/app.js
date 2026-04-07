@@ -381,6 +381,7 @@
           ${project.links.doc ? `<a class="btn btn-primary" target="_blank" rel="noreferrer" href="${project.links.doc}">View Case Study</a>` : ''}
           ${project.links.demo ? `<a class="btn btn-primary" target="_blank" rel="noreferrer" href="${project.links.demo}">Open Interactive Demo</a>` : ''}
           ${project.links.supporting ? `<a class="btn btn-secondary" target="_blank" rel="noreferrer" href="${project.links.supporting}">View Supporting File</a>` : ''}
+          ${project.links.additional ? `<a class="btn btn-secondary" target="_blank" rel="noreferrer" href="${project.links.additional}">View Additional Doc</a>` : ''}
           ${!project.links.github && !project.links.doc && !project.links.demo ? `<div class="pill">No external links available</div>` : ''}
           <a class="btn btn-secondary" href="/projects/index.html">Back to Projects</a>
         </div>

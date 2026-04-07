@@ -168,7 +168,8 @@ window.PORTFOLIO_DATA = {
       ],
       links: {
         doc: "https://docs.google.com/document/d/1bGdsl6QFREKnaGnk3F57vNV27Hd2FGdiabcVoN1O9bY/edit?usp=drive_link",
-        supporting: "https://drive.google.com/file/d/1wu3v6yj6LCg8rc_NEGG3IG6diI-QUmJL/view?usp=drive_link"
+        supporting: "https://drive.google.com/file/d/1wu3v6yj6LCg8rc_NEGG3IG6diI-QUmJL/view?usp=drive_link",
+        additional: "https://docs.google.com/document/d/1C1QWG1Rg8w_U8AZJVmHgvnlqPZXRwdur0FQDl4fIDFY/edit?tab=t.0"
       },
       featured: false
     }
