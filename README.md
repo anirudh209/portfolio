@@ -16,7 +16,7 @@
 This build mirrors the structure and visual rhythm of the Formix reference site, but does not copy proprietary assets or exact artwork.
 
 ## Run locally
-From this folder:
+Run from the root of this project:
 
 ```bash
 python -m http.server 8000

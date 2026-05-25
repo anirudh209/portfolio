@@ -11,8 +11,8 @@ window.PORTFOLIO_DATA = {
   },
   stats: [
     { value: "2+", label: "years in engineering" },
-    { value: "5", label: "portfolio case studies" },
-    { value: "3", label: "public GitHub repos" },
+    { value: "6", label: "portfolio case studies" },
+    { value: "4", label: "public GitHub repos" },
     { value: "50–100", label: "students trained" }
   ],
   capabilities: [
@@ -61,6 +61,29 @@ window.PORTFOLIO_DATA = {
     }
   ],
   projects: [
+    {
+      slug: "bill-shield",
+      title: "Bill Shield",
+      subtitle: "AI-powered medical bill auditing",
+      industry: "AI Products",
+      category: "LLM Systems",
+      art: "art-billshield",
+      year: "2026",
+      stack: ["Python", "FastAPI", "Claude 3.5 Sonnet", "ChromaDB", "Tesseract OCR"],
+      intro: "An intelligent system designed to protect Indian patients from hospital overcharging and wrongful insurance claim rejections by cross-referencing bills against CGHS and NPPA benchmarks.",
+      challenge: "Hospital billing in India is often opaque and inflated. Patients and their families frequently face massive bills under time pressure, with no easy way to verify if charges are compliant with government regulations or insurance rules.",
+      solution: "Developed a reasoning engine that extracts data from bills and discharge summaries using Claude 3.5 Sonnet, benchmarks it against a 235-record knowledge base of IRDAI rules and CGHS rates, and generates legally-grounded dispute letters.",
+      outcomes: [
+        "Identified overcharges of up to 7.6x on specific procedures like CT scans in test cases.",
+        "Automated the generation of regulatory complaints for the IRDAI 'Bima Bharosa' portal.",
+        "Created a unified schema for hospital bills and medical findings to ensure auditability."
+      ],
+      links: {
+        github: "https://github.com/anirudh209/bill-shield-",
+        demo: "https://bill-shield-mocha.vercel.app/"
+      },
+      featured: true
+    },
     {
       slug: "shadowshelf-mvp",
       title: "ShadowShelf",
@@ -147,7 +170,7 @@ window.PORTFOLIO_DATA = {
       links: {
         demo: "/assets/ai-filmmaker-workflow-demo.html"
       },
-      featured: false
+      featured: true
     },
     {
       slug: "ai-brand-campaign",

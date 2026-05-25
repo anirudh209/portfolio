@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Detail</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body data-page="project-detail" data-slug="bill-shield">
+  <div class="page-shell">
+    <div data-header></div>
+    <div data-mobile-menu></div>
+
+    <main>
+      <section class="inner-hero">
+        <div class="container">
+          <div class="breadcrumbs"><a href="/index.html">Home</a> / <a href="/projects/index.html">Projects</a> / <span data-project-breadcrumb></span></div>
+          <h1 class="inner-title" data-project-title></h1>
+          <p class="inner-sub" data-project-sub></p>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="container detail-grid">
+          <div class="detail-sections">
+            <div class="art-panel" data-project-art></div>
+            <article class="detail-card" data-project-overview></article>
+            <div class="detail-sections" data-project-details></div>
+          </div>
+          <aside class="sticky-panel" data-project-side></aside>
+        </div>
+      </section>
+    </main>
+
+    <div data-footer></div>
+  </div>
+
+  <script src="/assets/data.js"></script>
+  <script src="/assets/app.js"></script>
+</body>
+</html>

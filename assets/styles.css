@@ -244,6 +244,9 @@ body.menu-open{overflow:hidden}
   font-size:12px;
   opacity:0.84;
 }
+.art-billshield{background:
+  radial-gradient(circle at 80% 15%, rgba(255,255,255,.28), transparent 22%),
+  linear-gradient(135deg,#2e5bff 0%, #0072ff 48%, #00122e 100%);}
 .art-shadowshelf{background:
   radial-gradient(circle at 10% 10%, rgba(255,255,255,.32), transparent 24%),
   linear-gradient(135deg,#1f2bff 0%, #0b1126 52%, #1c1c1c 100%);}
